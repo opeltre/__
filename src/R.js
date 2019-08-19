@@ -1,10 +1,5 @@
 let __ = require('./__');
 
-let cell = a => 
-    Array.isArray(a) 
-        ? is
-        : is.split('.').filter(s => s !== '');
-
 
 let Alg = {};
 
@@ -88,9 +83,6 @@ let marginal =
                 : Alg.marginal(is, [j, ...js])(q.reduce(Alg.add))
             );
 
-Alg.marginal = 
-    (a, b) => marginal(...[a, b].map(cell));
-
 let extend = 
     ([i, ...is], [j, ...js], [E, ...Es]) => 
         q => typeof i === 'undefined' 
@@ -101,6 +93,14 @@ let extend =
                     _ => Alg.extend(is, [j, ...js], Es)(q)
                 )
             );
+
+let cell = js => 
+    Array.isArray(js) 
+        ? js
+        : js.split('.').filter(j => j !== '');
+
+Alg.marginal = 
+    (a, b) => marginal(...[a, b].map(cell));
 
 Alg.extend = 
     (a, b, Es) => extend(...[a, b].map(cell), Es);

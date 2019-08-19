@@ -1,0 +1,24 @@
+{
+  "name": "@opeltre/math",
+  "version": "0.0.0",
+  "description": "algebra & functional programming",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opeltre/__.git"
+  },
+  "keywords": [
+    "math",
+    "algebra",
+    "fp"
+  ],
+  "author": "OP",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/opeltre/__/issues"
+  },
+  "homepage": "https://github.com/opeltre/__#readme"
+}

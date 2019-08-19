@@ -4,7 +4,7 @@ let __ =
     f => xs => f(...xs);
 
 /* exports */
-// if (typeof document === 'undefined') 
+if (typeof document === 'undefined') 
     module.exports = __;
 
 __.null = 

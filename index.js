@@ -1,7 +1,7 @@
 let __ = require('./src/__.js'),
     R = require('./src/R'),
     C = require('./src/C'),
-    Fourier = require('./src/fourier');
+    fourier = require('./src/fourier');
 
 Object.assign(C, {fourier});
 

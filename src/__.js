@@ -3,9 +3,19 @@
 let __ = 
     f => xs => f(...xs);
 
-/* exports */
-if (typeof document === 'undefined') 
+if (typeof module !== 'undefined')
     module.exports = __;
+
+
+//-------- logic ---------
+
+__.$ = 
+    (...xs) => 
+        f => f(...xs);
+
+__.val = 
+    (f, x) => (!typeof x === 'undefined') ? f(x) : f;
+
 
 __.null = 
     () => {};
@@ -16,16 +26,16 @@ __.id =
 __.return = 
     x => () => x;
 
-__.val = 
-    (f, x) => (!typeof x === 'undefined') ? f(x) : f;
-
-__.$ = 
-    (...xs) => 
-        f => f(...xs);
+__.not = 
+    b => !b;
 
 __.if = 
-    (f,g,h) => 
+    (f, g, h) => 
+
         (...xs) => f(...xs) ? g(...xs) : h(...xs);
+
+
+//------- composition and chains ---------
 
 __.pipe = 
     (f=__.id, ...fs) => fs.length
@@ -37,15 +47,11 @@ __.do =
         ? __.pipe(__.do(f), __.do(...fs))
         : x => {f(x); return x} 
 
-__.not = 
-    b => !b;
 
-__.log = 
-    x => {console.log(x); return x};
+//------- arrays and records -------------
 
-__.logs = 
-    str => 
-        x => {__.log(str || 'logs:'); return  __.log(x)};
+__.range =
+    n => [...Array(n).keys()];
 
 __.map = 
     (...fs) => 
@@ -53,6 +59,13 @@ __.map =
             ? arr.map(__.pipe(...fs))
             : __.pipe(...fs)(arr);
             
+__.record = 
+    (...fs) => __.pipe(
+        __.map(k => [k, k]),
+        __.toKeys,
+        __.mapKeys(...fs)
+    );
+
 __.forKeys = 
     (...fs) => 
         obj => Object.keys(obj).forEach(
@@ -109,16 +122,24 @@ __.toPairs =
         return out;
     };
 
-/* misc */
 
-__.getset = 
-    (my, a, as) => getset(getsetArray(my, as), a);
+//--------- z z z -----------------
 
 __.sleep = 
     ms => new Promise(then => setTimeout(then, ms));
 
-__.range =
-    n => [...Array(n).keys()];
+__.log = 
+    x => {console.log(x); return x};
+
+__.logs = 
+    str => 
+        x => {__.log(str || 'logs:'); return  __.log(x)};
+
+
+//--------- get set ---------------
+
+__.getset = 
+    (my, a, as) => getset(getsetArray(my, as), a);
 
 
 /* getset */

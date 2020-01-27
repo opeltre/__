@@ -1,0 +1,140 @@
+let __ = require('./__'),
+    ND = require('./nd_array.js');
+
+module.exports = Tensor;
+
+function Tensor(K) {
+//  Create the ND-algebra type instance of tensors over the field K.
+
+    //------ expected methods in K ------
+    let add     = K.add     || ((a, b) => a + b),
+        mult    = K.mult    || ((a, b) => a * b),
+        inv     = K.inv     || (a => 1 / a),
+        zero    = K.zero    || (_ => 0),
+        unit    = K.unit    || (_ => 1);
+
+    let abs     = K.abs     || Math.abs,
+
+    //------ ND type instance ------
+    let nd = ND(); 
+        
+    //------ cast scalars to K ------
+    let toK = typeof K === 'function' 
+            ? K
+            : __.id;
+    let _K = nd.mapN(toK);
+
+    //------ inherit from nd ------
+    __.setKeys(nd)(_K);
+
+
+    //------ linear structure ------
+
+    _K.add = 
+        (...as) => as.reduce(_K.map2(add))
+
+    _K.scale = 
+        z => _K.map(a => mult(toK(z), a));
+
+    _K.minus = 
+        _K.scale(-1);
+
+    _K.subt = 
+        (a, b) => _K.add(a, _K.minus(b));
+
+    _K.span = 
+        (ks, as) => _K.add(
+            as.map((a, i) => _K.scale(ks[i])(a))
+        );
+
+    _K.zero = 
+        (Ns) => _K.compute(Ns)(zero);
+
+
+    //------ ring structure ------
+
+    _K.mult =
+        (...as) => as.reduce(_K.map2(mult));
+
+    _K.unit = 
+        (Ns) => _K.compute(Ns)(unit);
+
+
+    //------ multiplicative group ------
+
+    _K.inv = 
+        _K.map(inv);
+
+    _K.div = 
+        (a, b) => _K.mult(a, _K.inv(b));
+
+    //------ complex / quaternionic operations ------
+
+    if (K.bar) 
+        _K.bar = _K.map(bar);
+
+    if (K.Re) 
+        _K.Re = _K.map(Re);
+
+    if (K.Im)
+        _K.Im = _K.map(Im);
+
+
+    //------ integration and euclidean structure ------
+
+    _K.int = _K.reduce(_K.add);
+
+    _K.mean = 
+        u => mult(_K.int(u), toK(1 / _K.size(u)));
+
+    _K.inner = 
+        K.bar
+            ? __.pipe(
+                (a, b) => _K.mult(_K.bar(a), b),
+                _K.int
+            )
+            : __.pipe(_K.mult, _K.int);
+
+    _K.abs = 
+        u => _K.map(abs);
+
+    _K.norm = 
+        p => _K.int(_K.map(a => abs(a)**2));
+
+
+    //------ adjoint functorial maps ------
+
+    let extend = 
+        ([i, ...is], [j, ...js], [E, ...Es]) => 
+            q => typeof i === 'undefined' 
+                ? q 
+                : (i === j 
+                    ? q.map(_K.extend(is, js, Es))
+                    : E.map(
+                        _ => _K.extend(is, [j, ...js], Es)(q)
+                    )
+                );
+
+    let project = 
+        ([i, ...is], [j, ...js]) => 
+            q => typeof(i) === 'undefined'
+                ? q
+                : ( i === j 
+                    ? __.map(_K.project(is, js))(q)
+                    : _K.project(is, [j, ...js])(q.reduce(_K.add))
+                );
+
+    let indices = js => 
+        Array.isArray(js) 
+            ? js
+            : js.split('.').filter(j => j !== '');
+
+    _K.project = 
+        (a, b) => project(...[a, b].map(indices));
+
+    _K.extend = 
+        (a, b, Es) => extend(...[a, b].map(indices), Es);
+
+    return _K;
+
+}

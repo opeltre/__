@@ -1,29 +1,19 @@
-let Alg = require('./R'),
-    __ = require('./__');
+let __ = require('./__'),
+    Tensor = require('./tensor');
 
-let C = Alg.mapN(
+//------ cast to complex ------
+
+let C =
     (x, y) => typeof x === 'number'
         ? ({ Re: x, Im: y || 0 })
         : x
-);
+
+//------ complex field ------
 
 C.i = C(0,1);
 
 let Re = z => typeof z === 'number' ? z : z.Re,
     Im = z => typeof z === 'number' ? 0 : z.Im;
-
-C.Re = Alg.map(Re);
-C.Im = Alg.map(Im);
-
-let bar = 
-    z => C(Re(z), -Im(z));
-
-C.bar = Alg.map(bar);
-
-let minus = 
-    z => C(-Re(z), -Im(z));
-
-C.minus = Alg.map(minus);
 
 let add = 
     (a, b) => C(
@@ -31,53 +21,57 @@ let add =
         Im(a) + Im(b)
     );
 
-C.add = Alg.map2(add);
-
-C.subt = 
-    (a, b) => C.add(a, C.minus(b));
-        
 let mult = 
     (a, b) => C(
         Re(a) * Re(b) - Im(a) * Im(b),
         Re(a) * Im(b) + Im(a) * Re(b)
     );
 
-C.mult = Alg.map2(mult);
+let bar     = z => C(Re(z), -Im(z)),
+    abs2    = z => Re(z)**2 + Im(z)**2,
+    abs     = z => Math.sqrt(abs2(z)),
+    inv     = z => mult(C(1 / abs2(z)), bar(z));
 
-C.scale = 
-    t => Alg.map(z => mult(C(t), z))
+__.setKeys(
+    { add, mult, inv, zero, unit },
+    { Im, Re, bar, abs }
+)(C);
 
-let abs = 
-    z => Math.sqrt(Re(z)**2 + Im(z)**2);
 
-C.abs = Alg.map(abs);
+//------ complex ND-array type instance ------
+
+let _C = Tensor(C);
+
+
+//------ polar coordinates - exp and log  ------
 
 let sign = t => Math.sign(t) || 1;
 
 let phase = 
     z => Re(z) === 0 
         ? Math.sign(Im(z)) * (Math.PI / 2)
-        : Math.atan(Im(z)/Re(z)) - (Re(z) > 0 ? 0 : sign(Im(z)) * Math.PI);
+        : Math.atan(Im(z) / Re(z)) -
+                (Re(z) > 0 ? 0 : sign(Im(z)) * Math.PI);
 
-C.phase = Alg.map(phase);
-
-C.mass = Alg.reduce(C.add);
-
-C.scalar = __.pipe(
-    (a, b) => C.mult(C.bar(a), b),
-    C.mass
-);
-
-C.norm = 
-    a => Math.sqrt(C.Re(C.scalar(a, a)));
-
-C.expi = 
+let expi = 
     t => C(Math.cos(t), Math.sin(t));
 
-C.exp = 
-    z => C.mult(
-        C(Math.exp(Re(z))), 
-        C.expi(Im(z))
+_C.phase    = _C.map(phase);
+_C.expi     = _C.map(expi);
+
+_C.exp = 
+    _C.map( 
+        z => mult(
+            C(Math.exp(Re(z))), 
+            expi(Im(z))
+        )
     );
 
-module.exports = C;
+_C.log = 
+    _C.map(
+        z => _C(Math.log(abs(z)), phase(z))
+    );
+
+_C.i = C.i;
+
+module.exports = _C;

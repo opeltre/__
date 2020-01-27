@@ -13,7 +13,7 @@ function Tensor(K) {
         zero    = K.zero    || (_ => 0),
         unit    = K.unit    || (_ => 1);
 
-    let abs     = K.abs     || Math.abs,
+    let abs     = K.abs     || Math.abs;
 
     //------ ND type instance ------
     let nd = ND(); 
@@ -80,7 +80,7 @@ function Tensor(K) {
         _K.Im = _K.map(Im);
 
 
-    //------ integration and euclidean structure ------
+    //------ integration and inner product ------
 
     _K.int = _K.reduce(_K.add);
 
@@ -102,7 +102,7 @@ function Tensor(K) {
         p => _K.int(_K.map(a => abs(a)**2));
 
 
-    //------ adjoint functorial maps ------
+    //------ adjoint extension and projection ------
 
     let extend = 
         ([i, ...is], [j, ...js], [E, ...Es]) => 

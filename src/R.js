@@ -1,8 +1,7 @@
 let __ = require('./__'),
     Tensor = require('./tensor');
 
-
-//------ real ND-array type instance ------
+//------ real ND-arrays ------
 
 let _R = Tensor();
 

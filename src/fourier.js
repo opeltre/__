@@ -9,14 +9,17 @@
  *      - x = x1    + N1*x2
  *      - y ⁼ N2*y1 + y2 
  *  And denoting phases by:
- *      - phi   = 2 pi (x, y) / N1*N2
+ *      - phi   = 2 pi x*y / N1*N2
  *      - phi1  = 2 pi x1*y1 / N1
  *      - phi2  = 2 pi x2*y2 / N2
  *  One does get `phi = phi1 + phi2' in R mod (2 pi).
  *  
  *  Conclusion
  *  ----------
- *  FFT should be implemented here. 
+ *  FFT should be implemented here.
+ *  It consists of computing N1 FFTs of size N2, 
+ *  before computing N2 FFTs of size N1. 
+ *  Note recursion. 
  */
 
 let __ = require('./__'),
@@ -66,5 +69,40 @@ _F.waves =
     Ns => k => _F.compute(Ns)(
         x => _C.expi(_R.inner(k, x))
     );
+
+
+//------ FT along first slice ------
+
+_F.slice = 
+    
+    u => { 
+
+        let dims = _C.shape(u)
+            [N, ...Ns] = dims
+            [i, ...is] = __.range(dims.length);
+
+        let vec = k => [k, ...Ns.map(=> 0)]
+            e_i = k => waves([N, ...Ns])(vec(k));
+
+        let sum = _C.proj([i, ...is], is);
+
+        return _F.compute([N])(
+            k => sum(_C.mult(e_i(k), u))
+        );
+
+    };
+
+
+//------ FFT ------
+
+_F.fft = 
+    u => _C.shape(u).length 
+        ? _F.slice(u.map(v => _F.fft(v)))  
+        : u;
+
+
+_F.ifft = 
+    __.pipe(_C.reverse, _F.fft);
+
 
 module.exports = _F

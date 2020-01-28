@@ -71,9 +71,11 @@ _F.waves =
     );
 
 
+//====== Fast Fourier Transform ======
+
 //------ FT along first slice ------
 
-_F.slice = 
+let F0 = 
     
     u => { 
 
@@ -84,22 +86,29 @@ _F.slice =
         let vec = k => [k, ...Ns.map(=> 0)]
             e_i = k => waves([N, ...Ns])(vec(k));
 
-        let sum = _C.proj([i, ...is], is);
+        let sum = _C.proj([i, ...is], is),
+            scale = _C.scale(1 / Math.sqrt(N));
 
         return _F.compute([N])(
-            k => sum(_C.mult(e_i(k), u))
+            k => scale(sum(_C.mult(e_i(k), u)))
+            )
         );
 
     };
 
+_F.slice = 
+    u => _C.shape(u).length ? F0(u) : u;
+
 
 //------ FFT ------
 
-_F.fft = 
-    u => _C.shape(u).length 
-        ? _F.slice(u.map(v => _F.fft(v)))  
+let fft = 
+    u => _C.shape(u).length
+        ? _F.slice(u.map(v => fft(v)))  
         : u;
 
+_F.fft = 
+    __.pipe(_C, fft);
 
 _F.ifft = 
     __.pipe(_C.reverse, _F.fft);

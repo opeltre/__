@@ -3,40 +3,37 @@ let __ = require('./__'),
 
 module.exports = Tensor;
 
-//------ real field ------
-
-let R = {
-    add     : (a, b) => a + b,
-    mult    : (a, b) => a * b,
-    inv     : a => 1/a,
-    zero    : _ => 0,
-    unit    : _ => 1,
-    abs     : Math.abs
-};
-
-
-function Tensor(K=R) {
+function Tensor(K={}) {
 //  Create the ND-algebra type instance of tensors over the field K.
 
+    //====== inherit from ND type instance ======
     let nd = ND(); 
-        
     //------ cast scalars to K ------
     let toK = typeof K === 'function' 
             ? K
             : __.id;
     let _K = nd.mapN(toK);
-
-    //------ inherit from nd ------
     __.setKeys(nd)(_K);
+
+
+    //====== K-tensors ======
+
+    //------ field methods ------
+    let add     = K.add     || ((a, b) => a + b),
+        mult    = K.mult    || ((a, b) => a * b),
+        inv     = K.inv     || (a => 1 / a),
+        zero    = K.zero    || (_ => toK(0)),
+        unit    = K.unit    || (_ => toK(1)),
+        abs     = K.abs     || Math.abs;
 
 
     //------ linear structure ------
 
     _K.add = 
-        (...as) => as.reduce(_K.map2(K.add))
+        (...as) => as.reduce(_K.map2(add))
 
     _K.scale = 
-        z => _K.map(a => K.mult(toK(z), a));
+        z => _K.map(a => mult(toK(z), a));
 
     _K.minus = 
         _K.scale(-1);
@@ -50,22 +47,22 @@ function Tensor(K=R) {
         );
 
     _K.zero = 
-        (Ns) => _K.compute(Ns)(K.zero);
+        (Ns) => _K.compute(Ns)(zero);
 
 
     //------ ring structure ------
 
     _K.mult =
-        (...as) => as.reduce(_K.map2(K.mult));
+        (...as) => as.reduce(_K.map2(mult));
 
     _K.unit = 
-        (Ns) => _K.compute(Ns)(K.unit);
+        (Ns) => _K.compute(Ns)(unit);
 
 
     //------ multiplicative group ------
 
     _K.inv = 
-        _K.map(K.inv);
+        _K.map(inv);
 
     _K.div = 
         (a, b) => _K.mult(a, _K.inv(b));
@@ -87,7 +84,7 @@ function Tensor(K=R) {
     _K.int = _K.reduce(_K.add);
 
     _K.mean = 
-        u => K.mult(_K.int(u), toK(1 / _K.size(u)));
+        u => mult(_K.int(u), toK(1 / _K.size(u)));
 
     _K.inner = 
         K.bar
@@ -98,7 +95,7 @@ function Tensor(K=R) {
             : __.pipe(_K.mult, _K.int);
 
     _K.abs = 
-        _K.map(K.abs);
+        _K.map(abs);
 
     _K.norm = 
         p => _K.int(_K.map(a => abs(a)**2));

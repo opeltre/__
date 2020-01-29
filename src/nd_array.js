@@ -47,10 +47,10 @@ function ND() {
     //------ initialise from callable ------
 
     let compute = ([E, ...Es]) => 
-        f => typeof(E) === 'umyefined'
+        f => typeof(E) === 'undefined'
             ? f([])
             : E.map(
-                x => _R.compute(Es)(xs => f([x, ...xs]))
+                x => compute(Es)(xs => f([x, ...xs]))
             );
 
     let states = 

@@ -30,7 +30,7 @@ function Tensor(K={}) {
     //------ linear structure ------
 
     _K.add = 
-        (...as) => as.reduce(_K.map2(add))
+        _K.map2(add);
 
     _K.scale = 
         z => _K.map(a => mult(toK(z), a));
@@ -53,7 +53,7 @@ function Tensor(K={}) {
     //------ ring structure ------
 
     _K.mult =
-        (...as) => as.reduce(_K.map2(mult));
+        _K.map2(mult);
 
     _K.unit = 
         (Ns) => _K.compute(Ns)(unit);
@@ -98,7 +98,10 @@ function Tensor(K={}) {
         _K.map(abs);
 
     _K.norm = 
-        p => _K.int(_K.map(a => abs(a)**2));
+        a => Math.sqrt((K.Re || __.id)(
+            _K.inner(a, a)
+        ));
+
 
 
     //------ adjoint extension and projection ------

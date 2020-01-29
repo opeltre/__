@@ -79,19 +79,18 @@ let F0 =
     
     u => { 
 
-        let dims = _C.shape(u)
-            [N, ...Ns] = dims
+        let dims = _C.shape(u),
+            [N, ...Ns] = dims,
             [i, ...is] = __.range(dims.length);
 
-        let vec = k => [k, ...Ns.map(=> 0)]
-            e_i = k => waves([N, ...Ns])(vec(k));
+        let vec = k => [k, ...Ns.map(_ => 0)]
+            e_i = k => _F.waves([N, ...Ns])(vec(k));
 
-        let sum = _C.proj([i, ...is], is),
+        let sum = _C.project([i, ...is], is),
             scale = _C.scale(1 / Math.sqrt(N));
 
-        return _F.compute([N])(
+        return __.range(N).map(
             k => scale(sum(_C.mult(e_i(k), u)))
-            )
         );
 
     };

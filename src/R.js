@@ -41,11 +41,13 @@ _R.freeE =
         return m + _log(_R.int(_R.exp_(H_m)));
     };
 
-_R.gibbs = 
-    __.pipe(
-        _R.subt(H, _R.freeE(H)),
-        _R.exp_
-    );
+_R.gibbs =
+    H => {
+        let F = _R.freeE(H),
+            H_F = _R.map(h => h - F)(H)
+
+        return _R.exp_(H_F);
+    }; 
 
 _R.effE = 
     (is, js) => 
@@ -57,3 +59,5 @@ _R.effE =
 
             return _R.map(h => h + m)(eff_m);
         };
+
+module.exports = _R;

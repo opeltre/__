@@ -13,10 +13,6 @@ __.$ =
     (...xs) => 
         f => f(...xs);
 
-__.val = 
-    (f, x) => (!typeof x === 'undefined') ? f(x) : f;
-
-
 __.null = 
     () => {};
 
@@ -33,6 +29,12 @@ __.if =
     (f, g, h) => 
 
         (...xs) => f(...xs) ? g(...xs) : h(...xs);
+
+__.val = 
+    (f, x) => 
+        (typeof f === 'function' && typeof x !== 'undefined')
+            ? f(x) 
+            : f;
 
 
 //------- composition and chains ---------

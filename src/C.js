@@ -1,7 +1,7 @@
 let __ = require('./__'),
     Tensor = require('./tensor');
 
-//------ cast to complex ------
+//------ complex casting ------
 
 let C =
     (x, y) => typeof x === 'number'
@@ -30,7 +30,9 @@ let mult =
 let bar     = z => C(Re(z), -Im(z)),
     abs2    = z => Re(z)**2 + Im(z)**2,
     abs     = z => Math.sqrt(abs2(z)),
-    inv     = z => mult(C(1 / abs2(z)), bar(z));
+    inv     = z => mult(C(1 / abs2(z)), bar(z)),
+    zero    = _ => C(0),
+    unit    = _ => C(1);
 
 __.setKeys(
     { add, mult, inv, zero, unit },
@@ -38,12 +40,12 @@ __.setKeys(
 )(C);
 
 
-//------ complex ND-array type instance ------
+//------ complex ND-arrays ------
 
 let _C = Tensor(C);
 
 
-//------ polar coordinates - exp and log  ------
+//------ polar coordinates, exp and log  ------
 
 let sign = t => Math.sign(t) || 1;
 
@@ -56,9 +58,6 @@ let phase =
 let expi = 
     t => C(Math.cos(t), Math.sin(t));
 
-_C.phase    = _C.map(phase);
-_C.expi     = _C.map(expi);
-
 _C.exp = 
     _C.map( 
         z => mult(
@@ -69,9 +68,11 @@ _C.exp =
 
 _C.log = 
     _C.map(
-        z => _C(Math.log(abs(z)), phase(z))
+        z => C(Math.log(abs(z)), phase(z))
     );
 
-_C.i = C.i;
+_C.phase    = _C.map(phase);
+_C.expi     = _C.map(expi);
+_C.i        = C.i;
 
 module.exports = _C;

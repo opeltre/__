@@ -1,17 +1,34 @@
 /*** __ ***/
 
 let __ = 
-    f => xs => f(...xs);
+    f => __.xargs(f);
 
 if (typeof module !== 'undefined')
     module.exports = __;
 
 
-//-------- logic ---------
+//------ argument application -------
 
 __.$ = 
-    (...xs) => 
-        f => f(...xs);
+    (...xs) => f => f(...xs);
+
+__.xargs =
+    f => xs => f(...xs);
+
+
+//------- composition and chains ---------
+
+__.pipe = 
+    (f=__.id, ...fs) => fs.length
+        ? (...xs) =>  __.pipe(...fs)(f(...xs))
+        : (...xs) => f(...xs);
+
+__.do = 
+    (f=__.id, ...fs) => fs.length
+        ? __.pipe(__.do(f), __.do(...fs))
+        : x => {f(x); return x} 
+
+//------ logic ------
 
 __.null = 
     () => {};
@@ -30,6 +47,9 @@ __.if =
 
         (...xs) => f(...xs) ? g(...xs) : h(...xs);
 
+
+//------ return or compute value ------
+
 __.val = 
     (f, x) => 
         (typeof f === 'function' && typeof x !== 'undefined')
@@ -37,20 +57,7 @@ __.val =
             : f;
 
 
-//------- composition and chains ---------
-
-__.pipe = 
-    (f=__.id, ...fs) => fs.length
-        ? (...xs) =>  __.pipe(...fs)(f(...xs))
-        : (...xs) => f(...xs);
-
-__.do = 
-    (f=__.id, ...fs) => fs.length
-        ? __.pipe(__.do(f), __.do(...fs))
-        : x => {f(x); return x} 
-
-
-//------- arrays and records -------------
+//------- arrays -------------
 
 __.range =
     n => [...Array(n).keys()];
@@ -60,75 +67,10 @@ __.map =
         arr => Array.isArray(arr)
             ? arr.map(__.pipe(...fs))
             : __.pipe(...fs)(arr);
-            
-__.toKeys = 
-    pairs => {
-        let out = {};
-        pairs.forEach(
-            ([v, k]) => out[k] = v
-        )
-        return out;
-    };
+     
 
-__.toPairs = 
-    obj => {
-        let out = [];
-        __.forKeys(
-            (v, k) => out.push([v, k])
-        )(obj);
-        return out;
-    };
-
-__.computeKeys = 
-    (v, k) => __.pipe(
-        __.map(x => [v(x), k(x)]),
-        __.toKeys
-    );
-
-__.mapKeys = 
-    (...fs) => 
-        obj => {
-            let obj2 = {};
-            Object.keys(obj).forEach(
-                k => obj2[k] = __.pipe(...fs)(obj[k], k)
-            )
-            return obj2;
-        };
-
-__.map2Keys = 
-    (f, ...fs) => 
-        (u, v) => __.mapKeys(
-            (uk, k) => f(uk, v[k], k),
-            ...fs
-        )(u);
-
-__.forKeys = 
-    (...fs) => 
-        obj => Object.keys(obj).forEach(
-            k => __.pipe(...fs)(obj[k], k)
-        );
-
-__.setKeys = 
-    (f, ...fs) => 
-        obj => f 
-            ? __.setKeys(...fs)(Object.assign(obj, __.val(f, obj)))
-            : obj;
-
-__.subKeys = 
-    (...ks) => 
-        obj => {
-            let sub = {};
-            ks.filter(k => (obj[k] !== undefined))
-                .forEach(k => sub[k] = obj[k]);
-            return sub;
-        };
-
-__.emptyKeys =
-    obj => {
-        let out = true;
-        __.forKeys(k => out = false)(obj);
-        return out;
-    };
+__.apply = 
+    fs => (...xs) => __.map(__.$(...xs))(fs);
 
 
 //--------- z z z -----------------
@@ -144,7 +86,7 @@ __.logs =
         x => {__.log(str || 'logs:'); return  __.log(x)};
 
 
-//--------- get set ---------------
+//--------- get set (MOVE) ---------------
 
 __.getset = 
     (my, a, as) => getset(getsetArray(my, as), a);

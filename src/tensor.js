@@ -1,5 +1,8 @@
 let __ = require('./__'),
-    ND = require('./nd_array.js');
+    ND = require('./nd_array'),
+    {cell} = require('./id');
+    
+let record = require('./record')();
 
 module.exports = Tensor;
 
@@ -7,13 +10,13 @@ function Tensor(K={}) {
 //  Create the ND-algebra type instance of tensors over the field K.
 
     //====== inherit from ND type instance ======
-    let nd = ND(); 
+    let nd = ND();
     //------ cast scalars to K ------
     let toK = typeof K === 'function' 
             ? K
             : __.id;
     let _K = nd.mapN(toK);
-    __.setKeys(nd)(_K);
+    record.set(nd)(_K);
 
 
     //====== K-tensors ======
@@ -29,8 +32,11 @@ function Tensor(K={}) {
 
     //------ linear structure ------
 
-    _K.add = 
+    _K.add2 = 
         _K.map2(add);
+
+    _K.add = 
+        (...as) => as.reduce(_K.add2);
 
     _K.scale = 
         z => _K.map(a => mult(toK(z), a));
@@ -123,7 +129,7 @@ function Tensor(K={}) {
                 ? q
                 : ( i === j 
                     ? __.map(_K.project(is, js))(q)
-                    : _K.project(is, [j, ...js])(q.reduce(_K.add))
+                    : _K.project(is, [j, ...js])(q.reduce(_K.add2))
                 );
 
     let indices = js => 
@@ -136,6 +142,32 @@ function Tensor(K={}) {
 
     _K.extend = 
         (a, b, Es) => extend(...[a, b].map(indices), Es);
+
+    return _K;
+
+}
+
+
+
+Tensor.functor = function (E, K) {
+//  Return the two-sided functor K^E:
+//      E : I -> [num] describing the possible states of each coordinate. 
+
+    let _K = Tensor(K); 
+
+    //------ compute, shapes given by E ------
+    let compute = _K.compute,
+        Es = is => cell(is).map(E);
+
+    _K.compute = 
+        is => compute(Es(is));
+
+    //------ functorial maps ------
+    _K.func = 
+        (is, js) => _K.project(is, js);
+
+    _K.cofunc = 
+        (is, js) => _K.extend(is, js, Es(is));
 
     return _K;
 

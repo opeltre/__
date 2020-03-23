@@ -20,5 +20,6 @@
   "bugs": {
     "url": "https://github.com/opeltre/__/issues"
   },
-  "homepage": "https://github.com/opeltre/__#readme"
+  "homepage": "https://github.com/opeltre/__#readme",
+  "dependencies": {}
 }

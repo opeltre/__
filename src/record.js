@@ -61,7 +61,7 @@ function Record () {
 
     my.map = 
         f => my.reduce(
-            (r, qk, k) => __.do(_ => r[k] = f(qk))(r),
+            (r, qk, k) => __.do(_ => r[k] = f(qk, k))(r),
             {}
         );
 

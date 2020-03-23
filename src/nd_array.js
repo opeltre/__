@@ -48,9 +48,9 @@ function ND() {
 
     let compute = ([E, ...Es]) => 
         f => typeof(E) === 'undefined'
-            ? f([])
+            ? f()
             : E.map(
-                x => compute(Es)(xs => f([x, ...xs]))
+                x => compute(Es)((...xs) => f(...[x, ...xs]))
             );
 
     let states = 

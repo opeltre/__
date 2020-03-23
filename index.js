@@ -1,10 +1,7 @@
-let __ = require('./src/__.js'),
-    R = require('./src/R'),
-    C = require('./src/C'),
-    fourier = require('./src/fourier');
+let __ = require('./src/__'),
+    record = require('./src/record'),
+    nd = require('./src/nd_array'),
+    alg = require('./src/alg/index'),
+    top = require('./src/top/index');
 
-Object.assign(C, {fourier});
-
-Object.assign(__, {R, C});
-
-module.exports = __;
+module.exports = Object.assign(__, {record, nd, alg, top});

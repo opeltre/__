@@ -1,22 +1,15 @@
 /*** __ ***/
 
+//------ monad: composition and chains ------
+
 let __ = 
-    f => __.xargs(f);
+    (f, ...fs) =>  __.pipe(
+        typeof f !== 'function' ? () => f : f,
+        ...fs
+    )
 
-if (typeof module !== 'undefined')
-    module.exports = __;
-
-
-//------ argument application -------
-
-__.$ = 
-    (...xs) => f => f(...xs);
-
-__.xargs =
-    f => xs => f(...xs);
-
-
-//------- composition and chains ---------
+__.return = 
+    x => () => x;
 
 __.pipe = 
     (f=__.id, ...fs) => fs.length
@@ -28,6 +21,25 @@ __.do =
         ? __.pipe(__.do(f), __.do(...fs))
         : x => {f(x); return x} 
 
+
+//------ pull-back and push-forward ------
+
+__.pull = 
+    (...gs) => f => __.pipe(...gs, f);
+
+__.push = 
+    (...fs) => f => __.pipe(f, ...fs);
+
+
+//------ argument application -------
+
+__.$ = 
+    (...xs) => f => f(...xs);
+
+__.xargs =
+    f => xs => f(...xs);
+
+
 //------ logic ------
 
 __.null = 
@@ -35,9 +47,6 @@ __.null =
 
 __.id =
     x => x;
-
-__.return = 
-    x => () => x;
 
 __.not = 
     b => !b;
@@ -48,26 +57,27 @@ __.if =
         (...xs) => f(...xs) ? g(...xs) : h(...xs);
 
 
-//------ return or compute value ------
-
-__.val = 
-    (f, x) => 
-        (typeof f === 'function' && typeof x !== 'undefined')
-            ? f(x) 
-            : f;
-
-
 //------- arrays -------------
 
 __.range =
     n => [...Array(n).keys()];
 
+__.linspace = 
+    (t0, t1, n=20) => __.range(n)
+        .map(t => t * (t1 - t0) / n);
+
+__.concat = 
+    (as, bs) => [...as, ...bs];
+     
 __.map = 
     (...fs) => 
         arr => Array.isArray(arr)
             ? arr.map(__.pipe(...fs))
             : __.pipe(...fs)(arr);
-     
+
+__.map2 = 
+    (...fs) => 
+        (as, bs) => as.map((ai, i) => __.pipe(...fs)(ai, bs[i], i));
 
 __.apply = 
     fs => (...xs) => __.map(__.$(...xs))(fs);
@@ -86,42 +96,7 @@ __.logs =
         x => {__.log(str || 'logs:'); return  __.log(x)};
 
 
-//--------- get set (MOVE) ---------------
+//------ node exports ------
 
-__.getset = 
-    (my, a, as) => getset(getsetArray(my, as), a);
-
-
-/* getset */
-
-function getset (my, attrs={}) {
-    let method = 
-        key => function (x) {
-            if (!arguments.length)
-                return attrs[key];
-            attrs[key] = x;
-            return my;
-        };
-    __.forKeys(
-        (v, k) => my[k] = method(k)
-    )(attrs);
-    return my;
-}
-
-function getsetArray (my, attrs={}) {
-    let method =
-        key => function (x, ...xs) {
-            if (typeof x === 'undefined')
-                return attrs[key];
-            if (Array.isArray(x))
-                attrs[key] = x;
-            else 
-                attrs[key] = [...attrs[key], x, ...xs];
-            return my;
-        };
-    __.forKeys(
-        (v, k) => my[k] = method(k)
-    )(attrs);
-    return my;
-}
-
+if (typeof module !== 'undefined')
+    module.exports = __;

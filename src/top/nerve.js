@@ -1,23 +1,18 @@
 let __ = require('../__'),
     S = require('./set'),
-    {cell, chain} = require('./id');
+    id = require('./id');
 
-module.exports = 
-    __.pipe(
-        __.map(cell),
-        Nerve
-    );
+let {cell, chain} = id;
 
 
 //------ Nerve type class ------ 
 
-function Nerve (Y) { 
+function Nerve (X) { 
 
     let N = 
         k => Ns[k] || [];
     
-    let X = S.closure(S.cap)(Y), 
-        N0 = X.map(a => [a]),
+    let N0 = X.map(a => [a]),
         Ns = chains([N0]);
 
     N.face = 
@@ -31,10 +26,10 @@ function Nerve (Y) {
 
 
     N.cone = 
-        a => X.filter(b => S.geq(a, b));
+        a => [a, ...X.filter(b => S.sup(a, b))]
 
     N.cocone = 
-        b => X.filter(a => S.geq(a, b));
+        b => [b, ...X.filter(a => S.sup(a, b))]
 
     N.intercone = 
         (a, c) => X.filter(b => S.geq(a, b) && !S.geq(c, b));
@@ -43,7 +38,7 @@ function Nerve (Y) {
         (a, c) => X.filter(b => S.sup(a, b) && S.sup(b, c));
 
     N.mu = 
-        (a, c) => S.eq(a, c) 
+        (a, c) => S.eq(a, c)
             ? 1
             : [a, ...N.interval(a, c)]
                 .map(b => - N.mu(a, b))
@@ -57,10 +52,10 @@ function Nerve (Y) {
 
 //------ Nerve with cones & intervals in memory ------
 
-Nerve.record = function (X, id=id) {
+Nerve.record = function (X) {
 
     let N = Nerve(X),
-        _r = __.Record();
+        _r = __.record();
 
     let cones = _r.compute(N.cone, cell.id)(X),
         cocones = _r.compute(N.cocone, cell.id)(X),
@@ -84,14 +79,14 @@ Nerve.record = function (X, id=id) {
                     return [];
                 }
                 else if (n === 0) {
-                    return X;
+                    return X.map(a => [a])
                 } 
                 else if (k === 0) {
-                    return N.cocone(bs[0])
+                    return N.cocone(bs[0]).slice(1)
                         .map(a => [a, ...bs]);
                 }
                 else if (k === n) {
-                    return N.cone(bs[n - 1])
+                    return N.cone(bs[n - 1]).slice(1)
                         .map(c => [...bs, c]);
                 }
                 else {
@@ -104,6 +99,12 @@ Nerve.record = function (X, id=id) {
 
 }
 
+
+module.exports = 
+    __.pipe(
+        __.map(cell),
+        Nerve.record
+    );
 
 
 //-------- compute the nerve -------

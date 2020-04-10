@@ -151,7 +151,7 @@ function Tensor(K={}) {
 
 Tensor.functor = function (E, K) {
 //  Return the two-sided functor K^E:
-//      E : I -> [num] describing the possible states of each coordinate. 
+//      E : I -> [num] describes the possible states of each coordinate. 
 
     let _K = Tensor(K); 
 

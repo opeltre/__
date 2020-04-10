@@ -61,6 +61,9 @@ function baseSpace (G, N) {
     NG.add = 
         (...us) => us.reduce(NG.add2);
 
+    NG.subt = 
+        (u, v) => NG.add(u, NG.scale(-1)(v));
+
     NG.mult = 
         (...us) => us.reduce(NG.map2(
             (ua, va, a) => G.mult(ua, va)
@@ -74,6 +77,18 @@ function baseSpace (G, N) {
 
     NG.inner =
        (u, v) => NG.int(NG.map2(G.inner)(u, v));
+
+    NG.norm = 
+        u => Math.sqrt(NG.inner(u, u));
+
+    NG.get = 
+        (u, a) => u[chain.id(a)];
+
+    NG.set = 
+        (u, a, ua) => { 
+            u[chain.id(a)] = ua; 
+            return u;
+        };
 
     return NG;
 }
@@ -133,6 +148,8 @@ function chainComplex (G, N, NG) {
             u => __.range(k + 1)
                 .map(j => NG.face(j, k)(u))
                 .reduce(NG.add2);
+
+    //------ combinatorics ------
 
     let iprod = 
         a0 => u => as => u([a0, ...as]); 

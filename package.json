@@ -1,6 +1,6 @@
 {
-  "name": "@opeltre/math",
-  "version": "0.0.3",
+  "name": "lolo",
+  "version": "0.0.0",
   "description": "algebra & functional programming",
   "main": "index.js",
   "scripts": {

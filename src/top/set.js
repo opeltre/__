@@ -65,17 +65,19 @@ S.closure =
         ? [ 
             ...as,
             ...S.closure(op)(S(
+                __.logs('closure:')(
                 as
                     .map(
-                        (a, i) => as.slice(i+1).map(b => op(a, b))
+                        (a, i) => as.slice(i+1)
+                            .map(b => op(a, b))
+                            .filter(c => ! S.in(c, as))
                     )
                     .reduce((xs, ys) => [...xs, ...ys])
-                    .filter(c => ! S.in(c, as))
+                )
             ))
         ]
         : [];
 
 S.capClosure = S.closure(S.cap);
-
 
 module.exports = S;

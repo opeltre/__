@@ -6,10 +6,10 @@ let __ = require('./__'),
     This module assigns convenience accessor methods to an object `my`,
     keeping references to an internal state object `attrs`. 
     
-    getset : a -> {s} -> {(0 | s) -> St({s}, s | a)}
+    getset : a -> {s} -> {?s -> St({s}, s | a)}
 
-        where a.method  : (0 | s) -> St({s}, s | a) 
-                        : [get] 0 -> St({s}, s)   
+        where a.method  : ?s -> St({s}, s | a) 
+                        : [get] _ -> St({s}, s)   
                         : [set] s -> St({s}, a)   
 */
 
@@ -17,7 +17,8 @@ let getset =
     (my, attrs, types={}) => {
 
         let records = types.records || [],
-            arrays = types.arrays || [];
+            arrays = types.arrays || [],
+            apply = types.apply || [];
 
         _r.forEach(
             (_, n) => {my[n] = getset.method(my, n, attrs)}
@@ -25,7 +26,9 @@ let getset =
 
         records.forEach(n => {my[n] = getset.recordMethod(my, n, attrs)});
 
-        arrays.forEach(n => {my[n] = method.arrayMethod(my, n, attrs)});
+        arrays.forEach(n => {my[n] = getset.arrayMethod(my, n, attrs)});
+
+        apply.forEach(n => {my[n] = getset.applyMethod(my, n, attrs)});
         
         return my;
     }
@@ -69,6 +72,16 @@ getset.arrayMethod = function (my, name, attrs) {
         return my;
     }
 }
+
+//------ attrs[name] : s = attrs ?-> s' ------
+getset.applyMethod = function (my, name, attrs) {
+    return function (x) {
+        if (!arguments.length) 
+            return attrs[name];
+        attrs[name] = __(x)(attrs);
+        return my;
+    }
+};
 
 module.exports = getset;
 

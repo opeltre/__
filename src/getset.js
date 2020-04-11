@@ -1,6 +1,18 @@
 let __ = require('./__'),
     _r = require('./record');
 
+/*------ Chainable getter-setters ------
+
+    This module assigns convenience accessor methods to an object `my`,
+    keeping references to an internal state object `attrs`. 
+    
+    getset : a -> {s} -> {(0 | s) -> St({s}, s | a)}
+
+        where a.method  : (0 | s) -> St({s}, s | a) 
+                        : [get] 0 -> St({s}, s)   
+                        : [set] s -> St({s}, a)   
+*/
+
 let getset =  
     (my, attrs, types={}) => {
 
@@ -18,7 +30,7 @@ let getset =
         return my;
     }
 
-
+//------ attrs[name] : s ------
 getset.method = (my, name, attrs) => {
     return function (x) {
         if (!arguments.length)
@@ -28,7 +40,7 @@ getset.method = (my, name, attrs) => {
     };
 }
 
-
+//------ attrs[name] : s = {s'} ------
 getset.recordMethod = (my, name, attrs) => {
     return function (x, y) {
         if (!arguments.length) 
@@ -43,7 +55,7 @@ getset.recordMethod = (my, name, attrs) => {
     }
 };
 
-
+//------ attrs[name] : s = [s'] ------
 getset.arrayMethod = function (my, name, attrs) {
     return function (x, y) {
         if (typeof x === 'undefined')

@@ -48,17 +48,17 @@ function Record () {
 
     //.set : str -> a -> {a} -> {a}
     my.set = 
-        (k, v) => r => my.assign({}, r, my.fromPairs([v, k]));
+        (k, v) => r => my.write(k, v)(my.assign({}, r));
     
     //.update : {a} -> {a} -> {a}
     my.update = 
         (...rs) => r => my.assign(r, ...rs)({});
 
-    //.write : str -> a -> Effect({a})
+    //.write : str -> a -> St({a}, {a})
     my.write = 
-        (k, v) => my.assign(fromPairs([v, k]));
+        (k, v) => r => {r[k] = v; return r}; 
 
-    //.assign : str -> a -> Effect({a})
+    //.assign : str -> a -> St({a}, {a})
     my.assign = 
         (...rs) => r => Object.assign(r, ...rs);
 

@@ -131,7 +131,7 @@ function Record () {
     
     //.compute : (a -> b, a -> str) -> a -> {b}
     my.compute = 
-        (f, g=__.id) => __.pipe(
+        (f=__.id, g=__.id) => __.pipe(
             __.map((...xs) => [f(...xs), g(...xs)]),
             my.fromPairs 
         );

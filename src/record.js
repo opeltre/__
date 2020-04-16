@@ -5,6 +5,21 @@ let _r = Record();
 
 module.exports = _r;
 
+/*------ Records ------
+
+Note: operations could be made chainable:
+
+    let f = _r()
+        .map((v, k) => f(v, k))
+        .set(k1, v1)
+        .set(k2, v2)
+
+    let r1 = f(r0);
+
+This would be a nice balance for the necessity 
+to pass the record at the end 
+*/
+
 function Record () {
 
     let my = {};
@@ -48,7 +63,7 @@ function Record () {
 
     //.set : str -> a -> {a} -> {a}
     my.set = 
-        (k, v) => r => my.write(k, v)(my.assign({}, r));
+        (k, v) => r => my.write(k, v)(my.assign(r)({}));
     
     //.update : {a} -> {a} -> {a}
     my.update = 
@@ -65,7 +80,12 @@ function Record () {
 
     //------ sequential updates ------
 
-    //         : {a -> a} -> {a} -> {a} 
+    //         : {a -> b} -> {a} -> {b} 
+    my.stream = 
+        rf => typeof rf === 'function'
+            ? r => rf(r)
+            : r => my.map(f => __(f)(r))(rf);
+
     let stream = 
         rf => typeof rf === 'function'
             ? r => my.update(rf(r))(r)

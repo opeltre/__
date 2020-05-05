@@ -88,6 +88,12 @@ __.map2 =
 __.apply = 
     fs => (...xs) => __.map(__.$(...xs))(fs);
 
+__.filter = 
+    f => arr => arr.filter(f);
+
+__.reduce = 
+    f => arr => arr.reduce(f);
+
 
 //--------- z z z -----------------
 

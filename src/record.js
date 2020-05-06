@@ -112,7 +112,7 @@ function Record () {
         (f, r) => q => 
             my.keys(q).reduce(
                 (a, k) => f(a, q[k], k),
-                r || {}
+                typeof r !== 'undefined' ? r : {}
             );
 
 

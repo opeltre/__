@@ -2,7 +2,7 @@ let __ = require('../__'),
     ND = require('../nd_array'),
     {cell} = require('../top/id');
     
-let record = require('../record')();
+let record = require('../record');
 
 module.exports = Tensor;
 
@@ -16,7 +16,7 @@ function Tensor(K={}) {
             ? K
             : __.id;
     let _K = nd.mapN(toK);
-    record.set(nd)(_K);
+    record.assign(nd)(_K);
 
 
     //====== K-tensors ======

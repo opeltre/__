@@ -40,7 +40,7 @@ module.exports = function (G, X) {
 
 function baseSpace (G, N) {
 
-    let NG = record();
+    let NG = record.new();
 
     let compute = NG.compute;
 

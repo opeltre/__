@@ -32,7 +32,7 @@ function Record () {
 
     //.isEmpty : {a} -> bool
     my.isEmpty =
-        r => my.keys(r).length > 0
+        r => my.keys(r).length === 0;
     
     //.null : [str] -> {null} 
     my.null = 

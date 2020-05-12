@@ -18,6 +18,8 @@ Note: operations could be made chainable:
 
 This would be a nice balance for the necessity 
 to pass the record at the end 
+
+>> Monads
 */
 
 function Record () {
@@ -168,6 +170,19 @@ function Record () {
             )(r);
             return pairs;
         };
+
+    //.sortBy : (a -> a -> Bool) -> {a} -> [(a, str)] 
+    my.sortBy = ord => r => {
+        let sorts = (x, y) => x < y ? -1 : (x > y ? 1 : 0);
+        if (typeof ord === 'string')
+            order = ([xi, i], [yj, j]) => sorts(xi[ord], yj[ord]);
+        if (typeof ord === 'undefined')
+            order = ([xi, i], [yj, j]) => sorts(i, j);
+        if (typeof ord === 'function')
+            order = ([xi, i], [yj, j]) => ord(xi, yj) === true ? -1 : 1;
+        return my.toPairs(r)
+            .sort(order);
+    }
     
     //.fromPairs : [(a, str)] -> {a} 
     my.fromPairs = 

@@ -92,7 +92,7 @@ __.filter =
     f => arr => arr.filter(f);
 
 __.reduce = 
-    f => arr => arr.reduce(f);
+    (f, acc) => arr => arr.reduce(f, acc);
 
 
 //--------- z z z -----------------

@@ -171,15 +171,24 @@ function Record () {
             return pairs;
         };
 
-    //.sortBy : (a -> a -> Bool) -> {a} -> [(a, str)] 
-    my.sortBy = ord => r => {
-        let sorts = (x, y) => x < y ? -1 : (x > y ? 1 : 0);
-        if (typeof ord === 'string')
-            order = ([xi, i], [yj, j]) => sorts(xi[ord], yj[ord]);
-        if (typeof ord === 'undefined')
-            order = ([xi, i], [yj, j]) => sorts(i, j);
-        if (typeof ord === 'function')
-            order = ([xi, i], [yj, j]) => ord(xi, yj) === true ? -1 : 1;
+    //.sortBy : (a -> a -> Bool, Bool) -> {a} -> [(a, str)] 
+    my.sortBy = (ord, rev) => r => {
+        let sorts = (x, y) => x < y ? -1 : (x > y ? 1 : 0),
+            sign = m => o => m ? - o : o,
+            order;
+        // sortBy('!field') 
+        if (typeof ord === 'string' && ord[0] === '!' 
+            && typeof rev === 'undefined')
+            return my.sortBy(ord.slice(1), true)(r);
+        // sortBy('field')
+        if (typeof ord === 'string') 
+            order = ([xi, i], [yj, j]) => sign(rev)(sorts(xi[ord], yj[ord]));
+        // sortBy(boolf) 
+        else if (typeof ord === 'function')
+            order = ([xi, i], [yj, j]) => sign(rev)(ord(xi, yj) ? -1 : 1)
+        // sortBy()
+        else
+            order = ([xi, i], [yj, j]) => sign(ord)(sorts(i, j))
         return my.toPairs(r)
             .sort(order);
     }

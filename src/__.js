@@ -70,7 +70,7 @@ __.range =
 
 __.linspace = 
     (t0, t1, n=20) => __.range(n)
-        .map(t => t * (t1 - t0) / (n - 1));
+        .map(t => t0 + t * (t1 - t0) / (n - 1));
 
 __.concat = 
     (as, bs) => [...as, ...bs];

@@ -49,7 +49,7 @@ function Tensor(K={}) {
 
     _K.span = 
         (ks, as) => _K.add(
-            as.map((a, i) => _K.scale(ks[i])(a))
+            ...as.map((ai, i) => _K.scale(ks[i])(ai))
         );
 
     _K.zero = 

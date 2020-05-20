@@ -61,6 +61,11 @@ function baseSpace (G, N) {
     NG.add = 
         (...us) => us.reduce(NG.add2);
 
+    NG.span = 
+        (ks, as) => NG.add(
+            ...as.map((ai, i) => NG.scale(ks[i])(ai))
+        );
+
     NG.subt = 
         (u, v) => NG.add(u, NG.scale(-1)(v));
 

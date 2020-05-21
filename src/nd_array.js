@@ -43,7 +43,20 @@ function ND() {
                 )
             )
             : p;
-    
+
+    let fold = (f) => ([i, ...is], [j, ...js]) => 
+            q => typeof(i) === 'undefined'
+                ? q
+                : i === j 
+                    ? __.map(fold(f)(is, js))(q)
+                    : fold(f)(is, [j, ...js])(
+                        q.reduce(my.map2(f))
+                    )
+
+    my.fold = (f, x0) => (is, js) => Array.isArray(is) && Array.isArray(js)
+        ? fold(f, x0)(is, js)
+        : fold(f, x0)(is.split('.'), js.split('.'));
+
     //------ initialise from callable ------
 
     let compute = ([E, ...Es]) => 

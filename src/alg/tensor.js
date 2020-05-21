@@ -118,7 +118,7 @@ function Tensor(K={}) {
                 ? q 
                 : (i === j 
                     ? q.map(_K.extend(is, js, Es))
-                    : E.map(
+                    : (Array.isArray(E) ? E : __.range(E)).map(
                         _ => _K.extend(is, [j, ...js], Es)(q)
                     )
                 );

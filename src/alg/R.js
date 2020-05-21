@@ -52,12 +52,13 @@ _R.gibbs =
 _R.effE = 
     (is, js) => 
         H => {
-            let m = _R.min(H),
-                H_m = _R.map(h => h - m)(H),
-                sum = _R.project(is, js),
+            let min = _R.fold(Math.min)(is, js),
+                ext = _R.extend(is, js, _R.shape(H)),
+                sum = _R.project(is, js);
+            let m = min(H),
+                H_m = _R.subt(H, ext(m)),
                 eff_m = _R._log(sum(_R.exp_(H_m)));
-
-            return _R.map(h => h + m)(eff_m);
+            return _R.add2(eff_m, m);
         };
 
 module.exports = _R;

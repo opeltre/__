@@ -62,7 +62,13 @@ Nerve.record = function (X) {
         intervals = _r.compute(__.xargs(N.interval), chain.id)(N(1)),
         intercones = _r.compute(__.xargs(N.intercone), chain.id)(N(1));
         
-    let mu = _r.compute(__.xargs(N.mu), chain.id)([...X.map(a => [a, a]), ...N(1)]);
+    let mu = _r.compute(__.xargs(N.mu), chain.id)
+        ([...X.map(a => [a, a]), ...N(1)]);
+    let c = _r.compute(
+        b => cocones[cell.id(b)]
+            .reduce((cb, a) => cb + mu[chain.id([a, b])], 0),
+        cell.id
+    )(X);
 
     N.cone = a => cones[cell.id(a)];
     N.cocone = b => cocones[cell.id(b)];
@@ -70,6 +76,8 @@ Nerve.record = function (X) {
     N.intercone = (a, c) => intercones[chain.id([a, c])];
 
     N.mu = (a, c) => mu[chain.id([a, c])];
+
+    N.c = a => c[cell.id(a)];
 
     N.cofaces =  
         k => 

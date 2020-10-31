@@ -1,7 +1,7 @@
 {
   "name": "lolo",
-  "version": "0.0.0",
-  "description": "algebra & functional programming",
+  "version": "1.0.0",
+  "description": "(beta) algebra & functional programming",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,7 +15,7 @@
     "algebra",
     "fp"
   ],
-  "author": "OP",
+  "author": "opeltre",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/opeltre/__/issues"

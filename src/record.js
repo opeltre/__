@@ -127,11 +127,14 @@ function Record () {
 
     //.map : (a -> b) -> {a} -> {b} 
     my.map = 
-        (...fs) => q => 
-            my.reduce(
-                (r, qk, k) => __.do(_ => r[k] = __.pipe(...fs)(qk, k))(r),
-                {}
-            )(q);
+        (...fs) => as => {
+            let bs = {},
+                f = __.pipe(...fs);
+            Object.keys(as).forEach(k => {
+                bs[k] = f(as[k]);
+            });
+            return bs;
+        };
 
     //.map2 : (a -> b -> c) -> {a} -> {b} -> {c}
     my.map2 = 

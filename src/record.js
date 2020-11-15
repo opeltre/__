@@ -131,7 +131,7 @@ function Record () {
             let bs = {},
                 f = __.pipe(...fs);
             Object.keys(as).forEach(k => {
-                bs[k] = f(as[k]);
+                bs[k] = f(as[k], k);
             });
             return bs;
         };
